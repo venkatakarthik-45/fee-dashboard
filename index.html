@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="15">
+  <title>Student Fee Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#f1f5f9; --card:#ffffff; --text:#0f172a; --muted:#64748b; --line:#e2e8f0; --accent:#6366f1; }
+    body.dark { --bg:#0f172a; --card:#1e293b; --text:#e2e8f0; --muted:#94a3b8; --line:#334155; --accent:#818cf8; }
+    * { box-sizing:border-box; }
+    body { font-family:'Inter',Arial,sans-serif; background:var(--bg); color:var(--text); margin:0; padding:0; }
+    header { background:#0f172a; color:#fff; padding:22px 28px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-bottom:3px solid var(--accent); }
+    header h1 { font-size:24px; margin:0; font-weight:700; color:#fff; letter-spacing:.02em; }
+    header .quote { color:#a5b4fc; font-style:italic; font-size:13px; margin:6px 0 0; }
+    header small { color:#94a3b8; display:block; margin-top:4px; }
+    header button { background:rgba(255,255,255,.18); color:#fff; border:none; border-radius:8px; padding:8px 14px; font-size:13px; cursor:pointer; }
+    header button:hover { background:rgba(255,255,255,.3); }
+    .wrap { padding:24px 28px; max-width:1200px; margin:auto; }
+    .insight { background:#eef2ff; color:#3730a3; padding:14px 18px; border-radius:12px; margin-bottom:18px; font-weight:500; }
+    body.dark .insight { background:#312e81; color:#c7d2fe; }
+    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:24px 22px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+    .card .label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; font-weight:600; }
+    .card .value { font-size:30px; font-weight:700; margin-top:12px; line-height:1; }
+    @media (max-width:760px) { .cards { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:480px) { .cards { grid-template-columns:1fr; } }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin:18px 0; }
+    .panel { background:var(--card); border-radius:14px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+    .panel h3 { margin:0 0 16px; font-size:14px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+    .donut-wrap { display:flex; align-items:center; gap:20px; }
+    .donut { width:120px; height:120px; border-radius:50%; flex-shrink:0;
+              background:conic-gradient(#16a34a 0deg 144deg, #f59e0b 144deg 288deg, #ef4444 288deg 360deg); }
+    .donut::after { content:""; display:block; width:72px; height:72px; margin:24px; border-radius:50%; background:var(--card); }
+    .legend span { display:block; font-size:13px; margin:5px 0; }
+    .dot { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; }
+    .course-row { display:grid; grid-template-columns:90px 1fr auto; gap:10px; align-items:center; margin:9px 0; font-size:12px; }
+    .trend { display:flex; align-items:flex-end; gap:10px; height:130px; }
+    .trend-col { flex:1; text-align:center; display:flex; flex-direction:column; justify-content:flex-end; height:100%; }
+    .trend-bar { background:var(--accent); border-radius:6px 6px 0 0; min-height:4px; }
+    .trend-label { font-size:11px; color:var(--muted); margin-top:6px; }
+    .meter-bg { background:var(--line); border-radius:10px; height:16px; overflow:hidden; }
+    .meter-fill { background:#16a34a; height:16px; border-radius:10px; }
+    .leader { margin:0; padding:0; list-style:none; counter-reset:rank; }
+    .leader li { display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid var(--line); counter-increment:rank; }
+    .leader li:last-child { border-bottom:none; }
+    .leader li span { display:flex; align-items:center; gap:10px; font-size:14px; }
+    .leader li span::before { content:counter(rank); display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; background:var(--bg); color:var(--muted); border-radius:50%; font-size:12px; font-weight:600; flex-shrink:0; }
+    .leader li b { font-size:14px; color:#ef4444; }
+    form.addpay { display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:10px; align-items:end; }
+    form.addpay label { font-size:12px; color:var(--muted); display:block; margin-bottom:4px; }
+    form.addpay input { width:100%; padding:9px 11px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--text); }
+    form.addpay button { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:10px 18px; cursor:pointer; font-weight:500; }
+    .controls { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0 0; }
+    #search { padding:9px 13px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--text); min-width:220px; }
+    .controls button { border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:8px; padding:9px 14px; cursor:pointer; font-size:13px; }
+    .controls button:hover { border-color:var(--accent); color:var(--accent); }
+    table { width:100%; border-collapse:collapse; background:var(--card); border-radius:14px; overflow:hidden; margin-top:14px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+    th, td { padding:13px 16px; text-align:left; border-top:1px solid var(--line); font-size:14px; vertical-align:top; }
+    th { color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    td.num { text-align:right; white-space:nowrap; }
+    small { color:var(--muted); }
+    .overdue { color:#ef4444; font-weight:600; font-size:12px; }
+    .overdue-row { background:rgba(239,68,68,.06); }
+    .bar-bg { background:var(--line); border-radius:5px; height:9px; width:100%; }
+    .bar-fill { height:9px; border-radius:5px; }
+    .badge { color:#fff; font-size:12px; padding:4px 11px; border-radius:20px; white-space:nowrap; }
+    .actions { white-space:nowrap; }
+    .wa { background:#25D366; color:#fff; text-decoration:none; font-size:12px; padding:6px 11px; border-radius:8px; }
+    .rcpt { background:transparent; border:1px solid var(--line); color:var(--text); font-size:12px; padding:6px 11px; border-radius:8px; cursor:pointer; }
+    .done { color:#16a34a; font-size:12px; }
+    footer { text-align:center; color:var(--muted); font-size:12px; padding:24px; }
+    @media print { .controls, header button, .wa, .rcpt, form.addpay, .addpanel { display:none; } }
+  </style>
+</head>
+<body class="dark">
+  <header>
+    <div>
+      <h1>Ameerpet Training Institute</h1>
+      <p class="quote">&ldquo;Skills are the new currency — we train you to earn it.&rdquo;</p>
+      <small>Student fee dashboard &middot; generated on 2026-06-26</small>
+    </div>
+    <div>
+      <button onclick="window.print()">Print / PDF</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="cards">
+      <div class="card"><div class="label">Students</div><div class="value">5</div></div>
+      <div class="card"><div class="label">Expected</div><div class="value">Rs 85,000</div></div>
+      <div class="card"><div class="label">Collected</div><div class="value" style="color:#16a34a;">Rs 50,000</div></div>
+      <div class="card"><div class="label">Pending</div><div class="value" style="color:#ef4444;">Rs 35,000</div></div>
+      <div class="card"><div class="label">Overdue</div><div class="value" style="color:#ef4444;">2</div></div>
+      <div class="card"><div class="label">Collection rate</div><div class="value">59%</div></div>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <h3>Payment status</h3>
+        <div class="donut-wrap">
+          <div class="donut"></div>
+          <div class="legend">
+            <span><span class="dot" style="background:#16a34a;"></span>Fully Paid &middot; 2</span>
+            <span><span class="dot" style="background:#f59e0b;"></span>Partial Paid &middot; 2</span>
+            <span><span class="dot" style="background:#ef4444;"></span>Not Paid &middot; 1</span>
+          </div>
+        </div>
+      </div>
+      <div class="panel"><h3>Collection by course</h3>
+          <div class="course-row">
+            <div class="course-name">Python</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:50%; background:#6366f1;"></div></div>
+            <div class="course-val">Rs 15,000 / Rs 30,000</div>
+          </div>
+          <div class="course-row">
+            <div class="course-name">Java</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:72%; background:#6366f1;"></div></div>
+            <div class="course-val">Rs 13,000 / Rs 18,000</div>
+          </div>
+          <div class="course-row">
+            <div class="course-name">Data Science</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:40%; background:#6366f1;"></div></div>
+            <div class="course-val">Rs 10,000 / Rs 25,000</div>
+          </div>
+          <div class="course-row">
+            <div class="course-name">Web Development</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:100%; background:#6366f1;"></div></div>
+            <div class="course-val">Rs 12,000 / Rs 12,000</div>
+          </div></div>
+      <div class="panel"><h3>Monthly collection</h3><div class="trend">
+          <div class="trend-col">
+            <div class="trend-bar" style="height:100%;" title="Rs 33,000"></div>
+            <div class="trend-label">01</div>
+          </div>
+          <div class="trend-col">
+            <div class="trend-bar" style="height:15%;" title="Rs 5,000"></div>
+            <div class="trend-label">02</div>
+          </div>
+          <div class="trend-col">
+            <div class="trend-bar" style="height:36%;" title="Rs 12,000"></div>
+            <div class="trend-label">03</div>
+          </div></div></div>
+      <div class="panel"><h3>Top pending</h3><ol class='leader'><li><span>Jeff Bezos</span><b>Rs 15,000</b></li><li><span>Mukesh Ambani &#9888;</span><b>Rs 15,000</b></li><li><span>Bill Gates &#9888;</span><b>Rs 5,000</b></li></ol></div>
+    </div>
+
+    <div class="controls">
+      <input id="search" placeholder="Search student name..." onkeyup="filterTable()">
+      <button onclick="setFilter('all')">All</button>
+      <button onclick="setFilter('Fully Paid')">Fully Paid</button>
+      <button onclick="setFilter('Partial Paid')">Partial</button>
+      <button onclick="setFilter('Not Paid')">Not Paid</button>
+    </div>
+
+    <table id="feeTable">
+      <tr>
+        <th>Name / Details</th><th>Progress</th><th class="num">Total</th>
+        <th class="num">Paid</th><th class="num">Pending</th><th>Status</th><th>Action</th>
+      </tr>
+      
+      <tr class="overdue-row" data-status="Partial Paid" data-name="bill gates">
+        <td><b>Bill Gates</b><br><small>Java &middot; 9000000002</small><br><span class="overdue">Overdue: 01-06-2026</span></td>
+        <td>
+          <div class="bar-bg"><div class="bar-fill" style="width:72%; background:#f59e0b;"></div></div>
+          <small>72% paid</small>
+        </td>
+        <td class="num">Rs 18,000</td>
+        <td class="num">Rs 13,000</td>
+        <td class="num">Rs 5,000</td>
+        <td><span class="badge" style="background:#f59e0b;">Partial Paid</span></td>
+        <td class="actions"><a class="wa" href="https://wa.me/919000000002?text=Hi%20Bill%20Gates%2C%20this%20is%20a%20friendly%20reminder%20from%20our%20institute.%20Your%20course%20%27Java%27%20has%20a%20pending%20fee%20of%20Rs%205%2C000%20%28Total%20Rs%2018%2C000%2C%20Paid%20Rs%2013%2C000%29.%20Kindly%20pay%20at%20your%20earliest%20convenience.%20Thank%20you%21" target="_blank">WhatsApp</a> <button class="rcpt" onclick="receipt('Bill Gates','Java',18000,13000,5000,'9000000002')">Receipt</button></td>
+      </tr>
+    
+      <tr class="overdue-row" data-status="Not Paid" data-name="mukesh ambani">
+        <td><b>Mukesh Ambani</b><br><small>Python &middot; 9000000005</small><br><span class="overdue">Overdue: 20-06-2026</span></td>
+        <td>
+          <div class="bar-bg"><div class="bar-fill" style="width:0%; background:#ef4444;"></div></div>
+          <small>0% paid</small>
+        </td>
+        <td class="num">Rs 15,000</td>
+        <td class="num">Rs 0</td>
+        <td class="num">Rs 15,000</td>
+        <td><span class="badge" style="background:#ef4444;">Not Paid</span></td>
+        <td class="actions"><a class="wa" href="https://wa.me/919000000005?text=Hi%20Mukesh%20Ambani%2C%20this%20is%20a%20friendly%20reminder%20from%20our%20institute.%20Your%20course%20%27Python%27%20has%20a%20pending%20fee%20of%20Rs%2015%2C000%20%28Total%20Rs%2015%2C000%2C%20Paid%20Rs%200%29.%20Kindly%20pay%20at%20your%20earliest%20convenience.%20Thank%20you%21" target="_blank">WhatsApp</a> <button class="rcpt" onclick="receipt('Mukesh Ambani','Python',15000,0,15000,'9000000005')">Receipt</button></td>
+      </tr>
+    
+      <tr class="" data-status="Partial Paid" data-name="jeff bezos">
+        <td><b>Jeff Bezos</b><br><small>Data Science &middot; 9000000003</small><br><small>Due: 15-07-2026</small></td>
+        <td>
+          <div class="bar-bg"><div class="bar-fill" style="width:40%; background:#f59e0b;"></div></div>
+          <small>40% paid</small>
+        </td>
+        <td class="num">Rs 25,000</td>
+        <td class="num">Rs 10,000</td>
+        <td class="num">Rs 15,000</td>
+        <td><span class="badge" style="background:#f59e0b;">Partial Paid</span></td>
+        <td class="actions"><a class="wa" href="https://wa.me/919000000003?text=Hi%20Jeff%20Bezos%2C%20this%20is%20a%20friendly%20reminder%20from%20our%20institute.%20Your%20course%20%27Data%20Science%27%20has%20a%20pending%20fee%20of%20Rs%2015%2C000%20%28Total%20Rs%2025%2C000%2C%20Paid%20Rs%2010%2C000%29.%20Kindly%20pay%20at%20your%20earliest%20convenience.%20Thank%20you%21" target="_blank">WhatsApp</a> <button class="rcpt" onclick="receipt('Jeff Bezos','Data Science',25000,10000,15000,'9000000003')">Receipt</button></td>
+      </tr>
+    
+      <tr class="" data-status="Fully Paid" data-name="elon musk">
+        <td><b>Elon Musk</b><br><small>Python &middot; 9000000001</small><br></td>
+        <td>
+          <div class="bar-bg"><div class="bar-fill" style="width:100%; background:#16a34a;"></div></div>
+          <small>100% paid</small>
+        </td>
+        <td class="num">Rs 15,000</td>
+        <td class="num">Rs 15,000</td>
+        <td class="num">Rs 0</td>
+        <td><span class="badge" style="background:#16a34a;">Fully Paid</span></td>
+        <td class="actions"><span class="done">Cleared</span> <button class="rcpt" onclick="receipt('Elon Musk','Python',15000,15000,0,'9000000001')">Receipt</button></td>
+      </tr>
+    
+      <tr class="" data-status="Fully Paid" data-name="mark zuckerberg">
+        <td><b>Mark Zuckerberg</b><br><small>Web Development &middot; 9000000004</small><br></td>
+        <td>
+          <div class="bar-bg"><div class="bar-fill" style="width:100%; background:#16a34a;"></div></div>
+          <small>100% paid</small>
+        </td>
+        <td class="num">Rs 12,000</td>
+        <td class="num">Rs 12,000</td>
+        <td class="num">Rs 0</td>
+        <td><span class="badge" style="background:#16a34a;">Fully Paid</span></td>
+        <td class="actions"><span class="done">Cleared</span> <button class="rcpt" onclick="receipt('Mark Zuckerberg','Web Development',12000,12000,0,'9000000004')">Receipt</button></td>
+      </tr>
+    
+    </table>
+  </div>
+
+  <footer>Ameerpet Training Institute &middot; numbers shown are demo data</footer>
+
+  <script>
+    var currentFilter = 'all';
+    function setFilter(status) { currentFilter = status; filterTable(); }
+    function filterTable() {
+      var text = document.getElementById('search').value.toLowerCase();
+      document.querySelectorAll('#feeTable tr[data-status]').forEach(function (row) {
+        var matchStatus = (currentFilter === 'all' || row.dataset.status === currentFilter);
+        var matchName = row.dataset.name.indexOf(text) !== -1;
+        row.style.display = (matchStatus && matchName) ? '' : 'none';
+      });
+    }
+
+    // Opens a clean printable receipt in a new window
+    function receipt(name, course, total, paid, pending, mobile) {
+      // Decide a personal message based on the payment status
+      var msg, msgColor, msgBg, title;
+      if (pending <= 0) {
+        title = 'Fully Paid';
+        msgColor = '#166534'; msgBg = '#dcfce7';
+        msg = 'Thank you, ' + name + '! Your fees are fully cleared. ' +
+              'We loved having you in ' + course + '. ' +
+              'Ready to level up? Enroll in our next course and keep your momentum going!';
+      } else if (paid > 0) {
+        title = 'Partially Paid';
+        msgColor = '#92400e'; msgBg = '#fef3c7';
+        msg = 'Thank you for your payment, ' + name + '. ' +
+              'A balance of Rs ' + pending.toLocaleString() + ' is still pending. ' +
+              'Please complete your remaining fees at the earliest to continue without interruption.';
+      } else {
+        title = 'Not Paid';
+        msgColor = '#991b1b'; msgBg = '#fee2e2';
+        msg = 'Dear ' + name + ', we have not yet received your fee for ' + course + '. ' +
+              'Kindly pay Rs ' + total.toLocaleString() + ' to confirm your seat and begin your learning journey with us.';
+      }
+
+      var w = window.open('', '_blank', 'width=460,height=640');
+      var row = function (label, value, color) {
+        return '<tr>' +
+          '<td style="padding:10px 0;color:#64748b">' + label + '</td>' +
+          '<td style="padding:10px 0;text-align:right;font-weight:500;color:' + (color || '#0f172a') + '">' + value + '</td>' +
+        '</tr>';
+      };
+
+      var html =
+        '<style>* { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; } @page { margin:14mm; }</style>' +
+        '<div style="font-family:Arial;max-width:400px;margin:24px auto;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">' +
+          '<div style="background:#0f172a;color:#fff;padding:22px 26px">' +
+            '<h2 style="margin:0;font-size:18px">Ameerpet Training Institute</h2>' +
+            '<p style="margin:4px 0 0;color:#cbd5e1;font-size:13px">Fee Receipt</p>' +
+          '</div>' +
+          '<div style="padding:24px 26px">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">' +
+              '<span style="font-size:16px;font-weight:600">' + name + '</span>' +
+              '<span style="font-size:12px;font-weight:600;color:' + msgColor + ';background:' + msgBg + ';padding:4px 12px;border-radius:20px">' + title + '</span>' +
+            '</div>' +
+            '<table style="width:100%;border-collapse:collapse;font-size:14px">' +
+              row('Course', course) +
+              row('Mobile', mobile) +
+              row('Total fee', 'Rs ' + total.toLocaleString()) +
+              row('Paid', 'Rs ' + paid.toLocaleString(), '#16a34a') +
+            '</table>' +
+            '<table style="width:100%;border-collapse:collapse;font-size:15px;border-top:2px solid #e2e8f0;margin-top:6px">' +
+              '<tr><td style="padding:12px 0;font-weight:700">Pending</td>' +
+              '<td style="padding:12px 0;text-align:right;font-weight:700;color:#ef4444">Rs ' + pending.toLocaleString() + '</td></tr>' +
+            '</table>' +
+            '<div style="margin-top:18px;background:' + msgBg + ';color:' + msgColor + ';padding:14px 16px;border-radius:10px;font-size:13px;line-height:1.6">' + msg + '</div>' +
+            '<p style="margin:20px 0 0;color:#94a3b8;font-size:11px;text-align:center">Ameerpet Training Institute &middot; This is a computer-generated receipt.</p>' +
+          '</div>' +
+        '</div>';
+
+      w.document.write(html);
+      w.document.close();
+      w.print();
+    }
+  </script>
+</body>
+</html>
